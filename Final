@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*“Set x to 7”*/
+enum {
+
+  MAXLINE = 256,
+
+};
+typedef struct Word Word;
+struct Word {
+  char *name;
+  void (*fun)(void);
+};
+
+void plus(void);
+void minus(void);
+void times(void);
+void equal(void);
+void divide(void);
+void dot(void);
+void mod(void);
+void push(int);
+int pop(void);
+Word vocabulary[] = {{"+", plus},      {"+", minus}, {"*", times},
+                     {"divide", divide}, {"set", equal}, {"%", mod},
+                     {".", dot},         {NULL, NULL}};
+int stack[65536];
+int sp;
+int main(int argc, char *argv[]) {
+  FILE *infp;
+  char buf[MAXLINE];
+  char *token;
+  int i;
+  infp = stdin;
+  if (argc > 1) {
+    infp = fopen(argv[1], "r");
+    if (infp == NULL) {
+      perror("open");
+      exit(1);
+    }
+  }
+  while (fgets(buf, MAXLINE, infp) != NULL) {
+    if (buf[0] == '#')
+      continue;
+    token = strtok(buf, "\t\n"); // each line
+
+
+    while (token != NULL) {
+      for (i = 0; vocabulary[i].name != NULL; i++) {
+        if (strcmp(token, vocabulary[i].name) == 0)
+          
+          break;
+      }
+      if (vocabulary[i].name != NULL) {
+        vocabulary[i].fun();
+      }
+
+      else {
+        push(atoi(token));
+      }
+      token = strtok(NULL, "\t \n");
+      
+      
+    }
+  
+  }
+}
+
+void push(int val) { stack[sp++] = val; }
+int pop(void) { return (stack[--sp]); }
+void dot(void) { printf("%d\n", pop()); }
+void plus(void) {
+  int x, y;
+  y = pop();
+  x = pop();
+  push(x + y);
+}
+void equal(void) {
+  int x, y;
+  y = pop();
+  x = y;
+  push(x);
+}
+void mod(void) {
+  int x, y;
+  y = pop();
+  x = pop();
+  push(x % y);
+}
+void minus(void) {
+  int x, y;
+  y = pop();
+  x = pop();
+  push(x - y);
+}
+void divide(void) {
+  int x, y;
+  y = pop();
+  x = pop();
+  push(x / y);
+}
