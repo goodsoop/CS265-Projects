@@ -1,38 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-/*“Set x to 7”*/
 enum {
 
   MAXLINE = 256,
 
 };
-typedef struct Word Word;
-struct Word {
-  char *name;
-  void (*fun)(void);
-};
 
-void plus(void);
-void minus(void);
-void times(void);
-void equal(void);
-void divide(void);
-void dot(void);
-void mod(void);
-void push(int);
-int pop(void);
-Word vocabulary[] = {{"+", plus},      {"+", minus}, {"*", times},
-                     {"divide", divide}, {"set", equal}, {"%", mod},
-                     {".", dot},         {NULL, NULL}};
-int stack[65536];
-int sp;
+
+char *tokenizer(char *buf, const char *deli);
+
+char *skip(char *buf);
+
+static char *string=NULL;
+
+int alphabet[26];
+
 int main(int argc, char *argv[]) {
   FILE *infp;
   char buf[MAXLINE];
   char *token;
-  int i;
+  int i,opindex,val;
+  char variable1,variable2;
+  i=0;
   infp = stdin;
   if (argc > 1) {
     infp = fopen(argv[1], "r");
@@ -41,63 +31,76 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
   }
+
   while (fgets(buf, MAXLINE, infp) != NULL) {
     if (buf[0] == '#')
       continue;
-    token = strtok(buf, "\t\n"); // each line
-
-
-    while (token != NULL) {
-      for (i = 0; vocabulary[i].name != NULL; i++) {
-        if (strcmp(token, vocabulary[i].name) == 0)
-          
-          break;
+    token = tokenizer(buf, "\t\n"); // each line
+    while (*token != '\0') {
+    if (strcmp(token, "set") == 0) {  
+      while (*token != '\0'){
+        token = skip(token);
+        token = tokenizer(token, "\t\n");
+        if (strcmp(token, "to") == 0 || strcmp(token, "by") == 0 ||
+          strcmp(token, "from") == 0)
+        continue;
+        if (i == 0)
+          {
+            variable1 = *token;
+            i +=1;
+          }
+        else if (i == 1){ 
+          if (atoi(token) == 0){
+            variable2 = *token;
+            alphabet[variable1-'a'] = alphabet[variable2-'a'];
+            i=0;
+          } else{
+            val = atoi(token);
+            alphabet[variable1-'a'] = val;
+            i=0;
+	    
+          }
+        }
       }
-      if (vocabulary[i].name != NULL) {
-        vocabulary[i].fun();
-      }
-
-      else {
-        push(atoi(token));
-      }
-      token = strtok(NULL, "\t \n");
-      
       
     }
+    i = 0;
+   
   
+      // place if add, subtract, multiply, divide
+    }
   }
+  return 0;
+  }
+
+
+char *tokenizer(char *buf, const char *deli){ 
+  char *start;
+  // if (buf == NULL) {
+  //   for (;*start == '\0'; start++)
+  //   if (*start == '\0') start++;
+  //   for (;*start != '\0'; start++){ 
+  //     if (*start == ' ' || *start == '\n'){
+ 
+  char* chr = buf;
+
+  for (;*chr == '\0'; chr++);
+  
+  for (; *chr != '\0'; chr++){
+    if (*chr == ' ' || *chr == '\n'){
+      *chr = '\0';
+      break;
+    }
+  }
+  return buf;
 }
 
-void push(int val) { stack[sp++] = val; }
-int pop(void) { return (stack[--sp]); }
-void dot(void) { printf("%d\n", pop()); }
-void plus(void) {
-  int x, y;
-  y = pop();
-  x = pop();
-  push(x + y);
-}
-void equal(void) {
-  int x, y;
-  y = pop();
-  x = y;
-  push(x);
-}
-void mod(void) {
-  int x, y;
-  y = pop();
-  x = pop();
-  push(x % y);
-}
-void minus(void) {
-  int x, y;
-  y = pop();
-  x = pop();
-  push(x - y);
-}
-void divide(void) {
-  int x, y;
-  y = pop();
-  x = pop();
-  push(x / y);
+char *skip(char *buf){ 
+  char* chr = buf;
+
+  for (;*chr != '\0'; chr++);
+
+  chr++;
+  
+  return chr++;
 }
