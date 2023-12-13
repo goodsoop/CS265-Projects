@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
           }
         }
       }
-      if (strcmp(token, "sub") == 0)
+      if (strcmp(token, "subtract") == 0)
       { 
         while (*token != '\0')
         {
@@ -204,9 +204,17 @@ int main(int argc, char *argv[]) {
           }
         }
       }
-    }
-    i = 0;
-   }
+    if (strcmp(token, "print") == 0)
+      {
+            token = skip(token); 
+            token = tokenizer(token, "\t\n");
+            variable1 = *token;
+            printf("%d\n", alphabet[variable1-'a']);
+            break;
+      }
+  }
+  i = 0;
+}
 
   return 0;
  }
