@@ -96,23 +96,49 @@ int main(int argc, char *argv[]) {
            {
              alphabet[variable2-'a']= alphabet[variable2-'a']+ val;
              i = 0;
-	   }
+     }
          }
 
           }
 
        }
-
-      
-    i = 0;
-
-
-      // place if add, subtract, multiply, divide
+    if (strcmp(token, "divide") == 0)
+    {
+  while (*token != '\0')
+  {
+         token = skip(token);
+         token = tokenizer(token, "\t\n");
+       if (strcmp(token, "to") == 0 || strcmp(token, "by") == 0 ||
+             strcmp(token, "from") == 0)
+             continue;
+   if (i==0)
+         {
+          variable1 = *token;
+          i +=1;
+         }
+   else
+        {
+          if (atoi(token)==0) // token is variable
+          {
+            variable2 = *token;
+            alphabet[variable1-'a'] = alphabet[variable1-'a']/alphabet[variable2-'a'];
+            i=0;
+          }
+          else
+          {
+            val = atoi(token);
+            alphabet[variable1-'a'] = alphabet[variable1-'a']/val;
+            i=0;
+          }
+        }	 
+      }
     }
+  i = 0;
   }
+  
+ }
   return 0;
-  }
-
+}
 
 char *tokenizer(char *buf, const char *deli){ 
   char *start;
